@@ -1,11 +1,21 @@
 import requests
 import os
+<<<<<<< HEAD
+=======
+import sys # for the error message
+>>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
 from bs4 import BeautifulSoup
 from mfunctions import *
 
 loginURL = "http://moodle.iitb.ac.in/login/index.php"
 HTTPSession = requests.session()
 
+<<<<<<< HEAD
+=======
+if not os.path.isfile("preferences.txt"):
+	sys.exit("Please create a preferences.txt with first line as your LDAP ID and the second as your password.") 
+
+>>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
 userPrefs = open("preferences.txt").read().splitlines()
 
 loginData = {'username':userPrefs[0] ,'password':userPrefs[1]}
@@ -43,7 +53,13 @@ for currCourse in Courses:
 		tempPage = HTTPSession.get(currFile.URL)
 		currFile.URL = tempPage.url
 		currFile.Extension = getFileType(currFile.URL)
+<<<<<<< HEAD
 		#Download if already doesn't exist!
+=======
+
+		if currFile.Extension != "none":
+			currFile.download(BASEDIR,HTTPSession)
+>>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
 
 	for folder in foldersOnPage :
 
@@ -64,7 +80,15 @@ for currCourse in Courses:
 
 				currFile.URL = Atag["href"]
 				currFile.Course = courseFolderName
+<<<<<<< HEAD
 
 				currFile.Name = Atag.text.split(".")[0]
 				currFile.Type = classify(currFile.Name)
 				#Download if already doesn't exist!
+=======
+				currFile.Name = Atag.text.split(".")[0]
+				currFile.Type = classify(currFile.Name)
+				
+				currFile.download(BASEDIR,HTTPSession)
+
+>>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
