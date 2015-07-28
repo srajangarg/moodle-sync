@@ -1,35 +1,25 @@
 import requests
 import os
-<<<<<<< HEAD
-=======
-import sys # for the error message
->>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
 from bs4 import BeautifulSoup
 from mfunctions import *
+from urlparse import urljoin
 
 loginURL = "http://moodle.iitb.ac.in/login/index.php"
 HTTPSession = requests.session()
 
-<<<<<<< HEAD
-=======
-if not os.path.isfile("preferences.txt"):
-	sys.exit("Please create a preferences.txt with first line as your LDAP ID and the second as your password.") 
-
->>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
 userPrefs = open("preferences.txt").read().splitlines()
 
 loginData = {'username':userPrefs[0] ,'password':userPrefs[1]}
+BASEDIR = userPrefs[2]
+if not os.path.exists(BASEDIR):
+	os.makedirs(BASEDIR)  
 
+# Moodle Scrape 
 afterLoginPage = HTTPSession.post(loginURL, data = loginData )
 afterLoginPage = HTTPSession.get('http://moodle.iitb.ac.in/my/')
 
 mainPageSoup = BeautifulSoup(afterLoginPage.content)
 Courses = mainPageSoup.select("li.type_course.depth_3")
-
-BASEDIR = "MoodleSyncFiles"
-
-if not os.path.exists(BASEDIR):
-	os.makedirs(BASEDIR)  
 
 for currCourse in Courses:
 
@@ -53,13 +43,8 @@ for currCourse in Courses:
 		tempPage = HTTPSession.get(currFile.URL)
 		currFile.URL = tempPage.url
 		currFile.Extension = getFileType(currFile.URL)
-<<<<<<< HEAD
-		#Download if already doesn't exist!
-=======
-
-		if currFile.Extension != "none":
-			currFile.download(BASEDIR,HTTPSession)
->>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
+		
+		currFile.download(BASEDIR, HTTPSession)
 
 	for folder in foldersOnPage :
 
@@ -80,15 +65,39 @@ for currCourse in Courses:
 
 				currFile.URL = Atag["href"]
 				currFile.Course = courseFolderName
-<<<<<<< HEAD
-
 				currFile.Name = Atag.text.split(".")[0]
 				currFile.Type = classify(currFile.Name)
-				#Download if already doesn't exist!
-=======
-				currFile.Name = Atag.text.split(".")[0]
-				currFile.Type = classify(currFile.Name)
-				
-				currFile.download(BASEDIR,HTTPSession)
 
->>>>>>> c3bdcd0ef20f7d89230ee4c44a0022fee8bc95ed
+				currFile.download(BASEDIR, HTTPSession)
+
+# IndiPAge Scrape
+indiPages = open("indipages.txt").read().splitlines()
+
+for line in indiPages:
+
+	courseFolderName = line[0:6]
+	URL = line[7:len(line)]
+
+	page = HTTPSession.get(URL)
+	pageSoup = BeautifulSoup(page.content)
+
+	currFile = MyFile()
+	allAtags = pageSoup.find_all("a")
+
+	for Atag in allAtags:
+
+		fileURL = Atag["href"]
+		fileURL = urljoin(siteURL, URL)
+		currFile.Extension = getFileType(fileURL)
+
+		if currFile.Extension != "none":
+
+			currFile.URL = Atag["href"]
+			currFile.Name = getfileName(fileURL, currFile.Extension)
+			currFile.Type = classify(currFile.Name)
+			currFile.Course = courseFolderName
+			currFile.download(BASEDIR, HTTPSession)
+
+
+
+
