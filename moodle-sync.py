@@ -1,5 +1,4 @@
-import requests
-import os
+import requests, os
 from bs4 import BeautifulSoup
 from mfunctions import *
 from urlparse import urljoin
@@ -20,6 +19,7 @@ afterLoginPage = HTTPSession.get('http://moodle.iitb.ac.in/my/')
 
 mainPageSoup = BeautifulSoup(afterLoginPage.content)
 Courses = mainPageSoup.select("li.type_course.depth_3")
+Courses = filter(lambda course : course.text.find("2015-1") != -1, Courses)
 
 for currCourse in Courses:
 
@@ -76,9 +76,9 @@ indiPages = open("indipages.txt").read().splitlines()
 for line in indiPages:
 
 	courseFolderName = line[0:6]
-	URL = line[7:len(line)]
+	siteURL = line[7:len(line)]
 
-	page = HTTPSession.get(URL)
+	page = HTTPSession.get(siteURL)
 	pageSoup = BeautifulSoup(page.content)
 
 	currFile = MyFile()
@@ -87,12 +87,12 @@ for line in indiPages:
 	for Atag in allAtags:
 
 		fileURL = Atag["href"]
-		fileURL = urljoin(siteURL, URL)
+		fileURL = urljoin(siteURL, fileURL)
 		currFile.Extension = getFileType(fileURL)
 
 		if currFile.Extension != "none":
 
-			currFile.URL = Atag["href"]
+			currFile.URL = fileURL
 			currFile.Name = getfileName(fileURL, currFile.Extension)
 			currFile.Type = classify(currFile.Name)
 			currFile.Course = courseFolderName

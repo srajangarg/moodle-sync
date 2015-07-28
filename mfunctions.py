@@ -1,3 +1,5 @@
+import os
+
 class MyFile:
 
 	URL=""
@@ -85,8 +87,8 @@ def getfileName(URL, filetype):
 
 	indexEnd = URL.find(filetype)
 
-    i = indexend - 1
-    while URL[i]!="/" and i >= 0:
-        i = i-1
+	i = indexEnd - 1
+	while URL[i]!="/" and i >= 0:
+		i = i-1
 
-    return URL[ i + 1 : indexEnd]
+	return URL[ i + 1 : indexEnd]
